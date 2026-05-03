@@ -1,0 +1,62 @@
+# вставьте описание сервиса в формате AsyncApi
+asyncapi: 2.6.0
+info:
+  title: Video Processing Pipeline
+  version: 1.0.0
+  description: Асинхронный конвейер обработки видео (grayscale -> face detection -> mosaic)
+
+servers:
+  rabbitmq:
+    url: amqp://localhost
+    protocol: amqp
+
+channels:
+
+  frame/input:
+    publish:
+      summary: Отправка исходного кадра
+      message:
+        payload:
+          type: object
+          properties:
+            frame:
+              type: string
+              description: raw frame
+
+  frame/gray:
+    subscribe:
+      summary: Получение кадра для grayscale
+    publish:
+      summary: Отправка grayscale кадра
+      message:
+        payload:
+          type: object
+          properties:
+            gray_frame:
+              type: string
+
+  frame/faces:
+    subscribe:
+      summary: Получение grayscale кадра
+    publish:
+      summary: Отправка найденных лиц
+      message:
+        payload:
+          type: object
+          properties:
+            faces:
+              type: array
+              items:
+                type: object
+
+  frame/mosaic:
+    subscribe:
+      summary: Получение лиц для блюра
+    publish:
+      summary: Отправка финального кадра
+      message:
+        payload:
+          type: object
+          properties:
+            result_frame:
+              type: string
